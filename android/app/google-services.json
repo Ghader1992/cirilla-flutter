@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "797479514250",
+    "project_id": "eo-eoclickandgo-app",
+    "storage_bucket": "eo-eoclickandgo-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:797479514250:android:232ddec7640ff00d70fd73",
+        "android_client_info": {
+          "package_name": "eo.eoclickandgo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyArzBMNKFUjFuy5ixHbHipHahv1AWnMcDM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

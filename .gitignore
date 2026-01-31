@@ -1,0 +1,27 @@
+# Flutter/Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+build/
+**/*.g.dart
+**/*.freezed.dart
+ECHO is on.
+# IDE
+.idea/
+.vscode/
+*.iml
+ECHO is on.
+# iOS
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ECHO is on.
+# Android/Gradle
+android/.gradle/
+android/local.properties
+ECHO is on.
+# OS
+.DS_Store
+Thumbs.db
