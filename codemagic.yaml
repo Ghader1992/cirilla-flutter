@@ -2,14 +2,17 @@ workflows:
   ios-workflow:
     name: iOS workflow
     instance_type: mac_mini_m2
+
     environment:
       flutter: stable
+
     scripts:
-      - name: Get packages
+      - name: Get Flutter packages
         script: flutter pub get
-      - name: Build IPA
+
+      - name: Build iOS IPA
         script: flutter build ipa --release
+
     artifacts:
-      - "build/ios/ipa/*.ipa"
-      - "build/ios/ipa/*.xcarchive"
       - "**/*.ipa"
+      - "**/*.xcarchive"
