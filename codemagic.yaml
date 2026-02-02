@@ -10,5 +10,6 @@ workflows:
       - name: Build IPA
         script: flutter build ipa --release
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/ios/archive/*.xcarchive
+      - "build/ios/ipa/*.ipa"
+      - "build/ios/ipa/*.xcarchive"
+      - "**/*.ipa"
