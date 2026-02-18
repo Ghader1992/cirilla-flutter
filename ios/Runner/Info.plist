@@ -51,7 +51,7 @@
 	<key>FacebookDisplayName</key>
 	<string>Cirilla</string>
 	<key>FirebaseAppDelegateProxyEnabled</key>
-	<false/>
+	<true/>
 	<key>FlutterDeepLinkingEnabled</key>
 	<true/>
 	<key>ITSAppUsesNonExemptEncryption</key>
