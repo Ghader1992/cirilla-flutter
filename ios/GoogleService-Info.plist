@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>sy.eoclickandgo.sy</string>
+	<string>eo.eoclickandgo.app</string>
 	<key>PROJECT_ID</key>
 	<string>eo-eoclickandgo-app</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:797479514250:ios:42660920468f9aa270fd73</string>
+	<string>1:797479514250:ios:f2ba7ede469545e170fd73</string>
 </dict>
 </plist>
