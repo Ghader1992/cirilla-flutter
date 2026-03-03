@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">EO SYRIA Store</string>
-    <string name="facebook_app_id">866704613752405</string>
-    <string name="fb_login_protocol_scheme">c361dfdae964220477b8897a407caf81</string>
-    <string name="facebook_client_token">3eeeb5fb4d0dffdfc1a5c8fb8eadb140</string>
+    <string name="facebook_app_id">941959128185133</string>
+    <string name="fb_login_protocol_scheme">fb941959128185133</string>
+    <string name="facebook_client_token">f296fd3c4936962086dceecb33a2f324</string>
 </resources>
