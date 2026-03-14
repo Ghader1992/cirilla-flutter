@@ -12,7 +12,20 @@
           "package_name": "eo.eoclickandgo.app"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "797479514250-4fki9amr1p03kn7odh0sluo42pg78kr8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "eo.eoclickandgo.app",
+            "certificate_hash": "4bb376eacac676a2057b61a3c805728d536e74d5"
+          }
+        },
+        {
+          "client_id": "797479514250-jcp4cm8qcntojfal8fsuqo4bi3tckvd9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyArzBMNKFUjFuy5ixHbHipHahv1AWnMcDM"
@@ -20,7 +33,20 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "797479514250-jcp4cm8qcntojfal8fsuqo4bi3tckvd9.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "797479514250-0kt9el1dgcuo3p2hi5kiovahq9vcna0p.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "eo.eoclickandgo.app",
+                "app_store_id": "6758545117"
+              }
+            }
+          ]
         }
       }
     }
