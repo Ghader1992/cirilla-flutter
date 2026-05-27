@@ -1,3 +1,4 @@
+export 'analytics_service.dart';
 export 'app_service.dart';
 export 'messaging.dart';
 export 'helpers/persist_helper.dart';

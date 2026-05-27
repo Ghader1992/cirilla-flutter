@@ -4,6 +4,8 @@ import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
 import 'package:cirilla/screens/auth/forgot_screen.dart';
 import 'package:cirilla/screens/auth/register_screen.dart';
+import 'package:cirilla/service/analytics_service.dart';
+import 'package:cirilla/service/meta_pixel_service.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:cirilla/types/types.dart';
 import 'package:cirilla/utils/utils.dart';
@@ -60,6 +62,24 @@ class _LoginScreenState extends State<LoginScreen> with AppBarMixin, LoadingMixi
     try {
       ModalRoute? modalRoute = ModalRoute.of(context);
       await _authStore!.loginStore.login(queryParameters);
+      // --- Analytics: Log login event ---
+      try {
+        final loginMethod = queryParameters['type']?.toString() ?? 'email';
+        await AnalyticsService.logLogin(loginMethod);
+        
+        // Advanced Matching: Set user data for Meta Pixel
+        final user = _authStore?.user;
+        if (user != null) {
+          await MetaPixelService.setUserData(
+            email: user.userEmail,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          );
+        }
+      } catch (e) {
+        debugPrint('--- Analytics ERROR (Login): $e ---');
+      }
+      // --- End Analytics ---
       final Map<String, dynamic> args = modalRoute!.settings.arguments as Map<String, dynamic>;
       ShowMessageType? showMessage = args['showMessage'];
       if (showMessage != null) {

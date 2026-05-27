@@ -1,4 +1,5 @@
 import 'package:cirilla/models/models.dart';
+
 import 'package:cirilla/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -114,6 +115,7 @@ class _CheckoutOnePageState extends State<CheckoutOnePage>
   void navigateOrderReceived(BuildContext context, String? url, int? orderId, String? paymentMethod) {
     Navigator.of(context).pop();
     Navigator.of(context).push(PageRouteBuilder(
+      settings: const RouteSettings(name: '/order-received'),
       pageBuilder: (context, _, __) => OrderReceived(orderId: orderId, url: url, paymentMethod: paymentMethod),
       transitionsBuilder: slideTransition,
     ));
@@ -138,9 +140,23 @@ class _CheckoutOnePageState extends State<CheckoutOnePage>
       showError(context, data.error);
     } else if (data is Map<String, dynamic>) {
       if (data['redirect'] == 'order') {
+        // Webview-based gateway callback (e.g. PayPal, Stripe redirect)
         int? orderId = ConvertData.stringToIntCanBeNull(data['order_id']);
         String? paymentMethod = get(data, ['payment_method'], null);
+        if (!context.mounted) return;
         navigateOrderReceived(context, data['order_received_url'], orderId, paymentMethod);
+      } else if (data['order_id'] != null) {
+        // WooCommerce Store API response (COD, BACS, Cheque, etc.)
+        // The order was placed successfully — navigate immediately.
+        // NOTE: We intentionally pass null as the URL here.
+        // The payment_result.redirect_url is a WooCommerce web URL designed for browser redirects.
+        // Passing it to OrderReceived would open a WebView that loads the WC checkout page again,
+        // triggering a second (failing) checkout request. For these simple gateways, show the
+        // in-app thank-you screen instead.
+        int? orderId = ConvertData.stringToIntCanBeNull(data['order_id']);
+        String? paymentMethod = _cartStore.paymentStore.method;
+        if (!context.mounted) return;
+        navigateOrderReceived(context, null, orderId, paymentMethod);
       }
     } else {
       navigateOrderReceived(context, null, null, null);
@@ -153,10 +169,21 @@ class _CheckoutOnePageState extends State<CheckoutOnePage>
       return;
     }
 
+    // --- Analytics: Log begin_checkout ---
+    try {
+      CartData? cartData = _cartStore.cartData;
+      if (cartData != null) {
+        await AnalyticsService.logBeginCheckout(cartData: cartData);
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] BeginCheckout log failed: $e');
+    }
+    // --- End Firebase Analytics ---
+
     PaymentBase payment = methods[_cartStore.paymentStore.method] as PaymentBase;
     Map<String, dynamic> settings = _cartStore.paymentStore.gateways[_cartStore.paymentStore.active].settings;
 
-    if (mounted) {
+    if (context.mounted) {
       Map<String, dynamic> billing = {
         ...?_cartStore.cartData?.billingAddress,
         ..._cartStore.checkoutStore.billingAddress,
@@ -431,7 +458,18 @@ class _CheckoutOnePageState extends State<CheckoutOnePage>
                             padHorizontal: 0,
                             gateways: _getGateways(),
                             active: _cartStore.paymentStore.active,
-                            select: _cartStore.paymentStore.select,
+                            select: (int index) {
+                              _cartStore.paymentStore.select(index);
+                              // Log payment info selection
+                              final CartData? cd = _cartStore.cartData;
+                              final List<Gateway> gateways = _getGateways();
+                              if (cd != null && index < gateways.length) {
+                                AnalyticsService.logAddPaymentInfo(
+                                  cartData: cd,
+                                  paymentType: gateways[index].title ?? gateways[index].id,
+                                );
+                              }
+                            },
                           ),
                           const SizedBox(height: itemPaddingSmall),
                           CartTotal(cartData: cartData)

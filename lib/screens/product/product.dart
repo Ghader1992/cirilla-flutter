@@ -16,6 +16,7 @@ import 'package:cirilla/models/product/product_type.dart';
 import 'package:cirilla/screens/auth/login_screen.dart';
 import 'package:cirilla/screens/product/widgets/product_addons.dart';
 import 'package:cirilla/service/helpers/request_helper.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/store/app_store.dart';
 import 'package:cirilla/store/auth/auth_store.dart';
 import 'package:cirilla/store/cart/cart_store.dart';
@@ -153,6 +154,23 @@ class _ProductScreenState extends State<ProductScreen>
       } else {
         _variationStore = _appStore.getStoreByKey(key);
       }
+    }
+    // --- Firebase Analytics: Log view_item when product page opens ---
+    _logViewItem();
+  }
+
+  Future<void> _logViewItem() async {
+    if (_product == null) return;
+    try {
+      String currency = widget.store?.currency ?? 'USD';
+      debugPrint('--- Analytics: Logging view_item for "${_product!.name}" ---');
+      await AnalyticsService.logViewItem(
+        product: _product!,
+        currency: currency,
+      );
+      debugPrint('--- Analytics: logViewItem SUCCESS ---');
+    } catch (e) {
+      debugPrint('--- Analytics ERROR (ViewItem): $e ---');
     }
   }
 
@@ -468,6 +486,7 @@ class _ProductScreenState extends State<ProductScreen>
           if (expressCheckout) 'express_add_to_cart': 1,
         });
       }
+      
       if (mounted && showMessage) {
         showSuccess(
           context,

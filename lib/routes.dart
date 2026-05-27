@@ -178,7 +178,10 @@ class Routes {
       case PageScreen.routeName:
         return _getPageRoute(screen: PageScreen(args: args), routeName: name);
       case CustomScreen.routeName:
-        return _getPageRoute(screen: CustomScreen(screenKey: args['key']), routeName: name);
+        String customScreenKey = args?['key'] ?? 'custom';
+        return _getPageRoute(
+            screen: CustomScreen(screenKey: customScreenKey),
+            routeName: '/custom/$customScreenKey');
       case NotificationList.routeName:
         return _getPageRoute(screen: const NotificationList(), routeName: name);
       case NotificationDetail.routeName:

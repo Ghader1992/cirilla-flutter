@@ -1,5 +1,6 @@
 import 'package:cirilla/types/types.dart';
 import 'package:feather_icons/feather_icons.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 
 import 'widget/product/result_product.dart';
@@ -45,6 +46,14 @@ class ProductSearchDelegate extends SearchDelegate<String?> {
 
   @override
   Widget buildResults(BuildContext context) {
+    if (query.isNotEmpty) {
+      try {
+        debugPrint('--- Firebase Analytics: Logging search (Enter) "$query" ---');
+        FirebaseAnalytics.instance.logSearch(searchTerm: query);
+      } catch (e) {
+        debugPrint('--- Firebase Analytics ERROR (buildResults): $e ---');
+      }
+    }
     return Result(
       search: query,
       clearText: () {

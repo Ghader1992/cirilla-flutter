@@ -1,3 +1,4 @@
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/service/helpers/persist_helper.dart';
 import 'package:mobx/mobx.dart';
 
@@ -20,6 +21,7 @@ abstract class SearchStoreBase with Store {
   // Action: -----------------------------------------------------------------------------------------------------------
   @action
   Future<void> addSearch(String value) async {
+    AnalyticsService.logSearch(value);
     if (_data.isEmpty || _data.contains(value) != true) {
       _data.add(value);
     }

@@ -127,7 +127,7 @@ class _AddCartVideoShopState extends State<AddCartVideoShop> with CartMixin, Sna
     }
 
     try {
-      await addToCart(productId: widget.product.id, qty: 1);
+      await addToCart(productId: widget.product.id, qty: 1, product: widget.product);
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
         showSuccess(

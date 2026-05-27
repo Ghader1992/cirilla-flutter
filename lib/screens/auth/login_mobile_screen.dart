@@ -8,8 +8,8 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:provider/provider.dart';
 
 import 'package:cirilla/mixins/mixins.dart';
-import 'package:cirilla/screens/auth/widgets/login_mobile_digits.dart';
 import 'package:cirilla/screens/auth/widgets/login_mobile_firebase.dart';
+import 'package:cirilla/screens/auth/widgets/login_mobile_syriatel.dart';
 import 'package:cirilla/types/types.dart';
 
 // Ensure firebase initialize
@@ -54,8 +54,10 @@ class LoginMobileScreen extends StatelessWidget with AppBarMixin, LoadingMixin {
       body: Observer(
         builder: (_) => Stack(
           children: [
-            method == 'digits' ? LoginMobileDigits(type: type, lengthVerify: lengthVerify) : loginMobileFirebase(type: type, lengthVerify: lengthVerify),
-            if (authStore.loginStore.loading || authStore.digitsStore.loading)
+            method == 'syriatel' || method == 'digits'
+                ? LoginMobileSyriatel(type: type, lengthVerify: lengthVerify)
+                : loginMobileFirebase(type: type, lengthVerify: lengthVerify),
+            if (authStore.loginStore.loading || authStore.digitsStore.loading || authStore.syriatelOtpStore.loading)
               Align(
                 alignment: FractionalOffset.center,
                 child: buildLoadingOverlay(context),

@@ -2,8 +2,10 @@ import 'package:cirilla/models/auth/user.dart';
 import 'package:cirilla/service/app_service.dart';
 import 'package:cirilla/service/helpers/persist_helper.dart';
 import 'package:cirilla/service/helpers/request_helper.dart';
+import 'package:cirilla/service/meta_pixel_service.dart';
 import 'package:cirilla/store/auth/country_store.dart';
 import 'package:cirilla/store/auth/digits_store.dart';
+import 'package:cirilla/store/auth/syriatel_otp_store.dart';
 import 'package:cirilla/utils/debug.dart';
 import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
@@ -26,6 +28,7 @@ abstract class AuthStoreBase with Store {
   late LoginStore loginStore;
   late RegisterStore registerStore;
   late DigitsStore digitsStore;
+  late SyriatelOtpStore syriatelOtpStore;
   late ForgotPasswordStore forgotPasswordStore;
   late ResetPasswordStore resetPasswordStore;
   late ChangePasswordStore changePasswordStore;
@@ -103,6 +106,13 @@ abstract class AuthStoreBase with Store {
   Future<bool> logout() async {
     _isLogin = false;
     _token = null;
+    
+    // Clear Meta Pixel user data for privacy
+    try {
+      await MetaPixelService.clearUserData();
+    } catch (e) {
+      avoidPrint('MetaPixel clearUserData error: $e');
+    }
 
     // Remove FCM token in database
     String? token = await getToken();
@@ -152,6 +162,7 @@ abstract class AuthStoreBase with Store {
     loginStore = LoginStore(_requestHelper, this as AuthStore);
     registerStore = RegisterStore(_requestHelper, this as AuthStore);
     digitsStore = DigitsStore(_requestHelper, this as AuthStore);
+    syriatelOtpStore = SyriatelOtpStore(_requestHelper, this as AuthStore);
     forgotPasswordStore = ForgotPasswordStore(_requestHelper);
     resetPasswordStore = ResetPasswordStore(_requestHelper);
     changePasswordStore = ChangePasswordStore(_requestHelper);

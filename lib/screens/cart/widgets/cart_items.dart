@@ -2,6 +2,7 @@ import 'package:cirilla/constants/assets.dart';
 import 'package:cirilla/constants/constants.dart';
 import 'package:cirilla/extension/strings.dart';
 import 'package:cirilla/models/cart/cart.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/types/types.dart';
 import 'package:cirilla/utils/utils.dart';
 import 'package:cirilla/screens/product/product.dart';
@@ -114,6 +115,8 @@ class _ItemState extends State<Item> with Utility, CartMixin, SnackMixin, ShapeM
     );
     future.then((dynamic value) {
       if (value == 'remove') {
+        // Log remove_from_cart event
+        AnalyticsService.logRemoveFromCart(item: widget.cartItem);
         widget.onRemove!();
       } else {
         onChanged(_qty);

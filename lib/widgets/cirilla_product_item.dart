@@ -169,7 +169,7 @@ class _CirillaProductItemState extends State<CirillaProductItem>
       _loading = true;
     });
     try {
-      await addToCart(productId: widget.product!.id, qty: _quantity);
+      await addToCart(productId: widget.product!.id, qty: _quantity, product: widget.product);
       if (context.mounted) {
         showSuccess(
           context,

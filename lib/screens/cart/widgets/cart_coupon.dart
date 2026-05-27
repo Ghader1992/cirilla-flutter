@@ -1,6 +1,7 @@
 import 'package:cirilla/models/models.dart';
 import 'package:cirilla/screens/cart/coupon_smart/coupon_input_apply.dart';
 import 'package:cirilla/screens/cart/coupon_smart/coupon_smart_screen.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:cirilla/utils/utils.dart';
 import 'package:flutter/material.dart';
@@ -69,6 +70,8 @@ class _CartCouponState extends State<CartCoupon>
       TranslateType translate = AppLocalizations.of(context)!.translate;
       try {
         await widget.cartStore!.applyCoupon(code: code);
+        // Log coupon applied
+        AnalyticsService.logSelectPromotion(code);
         if (mounted) showSuccess(context, translate('cart_successfully'));
         myController.clear();
       } catch (e) {

@@ -1,4 +1,6 @@
 import 'package:cirilla/service/helpers/persist_helper.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:flutter/foundation.dart';
 import 'package:mobx/mobx.dart';
 
 part 'search_post_store.g.dart';
@@ -20,6 +22,12 @@ abstract class SearchPostStoreBase with Store {
   // Action: -----------------------------------------------------------------------------------------------------------
   @action
   Future<void> addSearch(String value) async {
+    try {
+      debugPrint('--- Firebase Analytics: Logging search term "$value" (Post) ---');
+      FirebaseAnalytics.instance.logSearch(searchTerm: value);
+    } catch (e) {
+      debugPrint('--- Firebase Analytics ERROR (SearchPostStore): $e ---');
+    }
     if (_data.isEmpty || _data.contains(value) != true) {
        _data.add(value);
     }

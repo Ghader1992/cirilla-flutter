@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'service/service.dart';
+import 'service/meta_pixel_service.dart';
 import 'register_service/appsflyer/appsflyer.dart';
 
 /// App starts
@@ -8,6 +9,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializePushNotificationService();
   await AppsFlyerDynamicLink().startSDK();
+  
+  // Initialize Meta Pixel (Facebook App Events) - runs in background
+  MetaPixelService.init();
+  
   SharedPreferences sharedPref = await getSharedPref();
 
   await AppServiceInject.create(

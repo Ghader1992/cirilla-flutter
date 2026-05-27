@@ -307,4 +307,8 @@ class Endpoints {
 
   // Upload Avatar: =================================================================================================
   static const String uploadAvatar = "/app-builder/v1/upload-avatar";
+
+  // Syriatel OTP: =================================================================================================
+  static const String syriatelSendOtp = "/syriatel-otp/v1/syriatel-send-otp";
+  static const String syriatelVerifyOtp = "/syriatel-otp/v1/syriatel-verify-otp";
 }

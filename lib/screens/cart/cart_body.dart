@@ -2,6 +2,7 @@ import 'package:cirilla/constants/constants.dart';
 import 'package:cirilla/mixins/cart_mixin.dart';
 import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/screens/cart/widgets/cart_coupon.dart';
 import 'package:cirilla/screens/cart/widgets/cart_items.dart';
 import 'package:cirilla/screens/cart/widgets/cart_shipping.dart';
@@ -52,6 +53,20 @@ class CartBodyState extends State<CartBody>
     _authStore = Provider.of<AuthStore>(context);
     _cartStore = _authStore.cartStore..getCart(false);
     _settingStore = Provider.of<SettingStore>(context);
+    
+    // Log cart view event
+    _logCartView();
+  }
+  
+  void _logCartView() {
+    try {
+      final CartData? cartData = _cartStore.cartData;
+      if (cartData != null) {
+        AnalyticsService.logViewCart(cartData: cartData);
+      }
+    } catch (e) {
+      debugPrint('[CartBody] Error logging cart view: $e');
+    }
   }
 
   @override

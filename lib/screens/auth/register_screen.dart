@@ -4,6 +4,8 @@ import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
 import 'package:cirilla/screens/auth/login_screen.dart';
 import 'package:cirilla/screens/home/home.dart';
+import 'package:cirilla/service/analytics_service.dart';
+import 'package:cirilla/service/meta_pixel_service.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:cirilla/types/types.dart';
 import 'package:cirilla/utils/utils.dart';
@@ -98,6 +100,23 @@ class _RegisterScreenState extends State<RegisterScreen> with AppBarMixin, Loadi
     try {
       await _authStore!.registerStore.register(queryParameters);
       _handleRegisterWithReferral();
+      // --- Analytics: Log sign_up event after successful registration ---
+      try {
+        await AnalyticsService.logSignUp('email');
+        
+        // Advanced Matching: Set user data for Meta Pixel
+        final user = _authStore?.user;
+        if (user != null) {
+          await MetaPixelService.setUserData(
+            email: user.userEmail,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          );
+        }
+      } catch (e) {
+        debugPrint('--- Analytics ERROR (SignUp): $e ---');
+      }
+      // --- End Analytics ---
       if (mounted) Navigator.popUntil(context, ModalRoute.withName(HomeScreen.routeName));
     } catch (e) {
       if (mounted) showError(context, e);

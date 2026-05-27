@@ -1,6 +1,7 @@
 import 'package:cirilla/models/setting/setting.dart';
 import 'package:cirilla/routes.dart';
 import 'package:cirilla/screens/home/widgets/builder_widgets.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/store/setting/setting_store.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,11 +23,18 @@ class CustomScreen extends StatefulWidget {
 
 class _CustomScreenState extends State<CustomScreen> {
   late SettingStore _settingStore;
+  bool _screenLogged = false;
 
   @override
   void didChangeDependencies() {
     _settingStore = Provider.of<SettingStore>(context);
     super.didChangeDependencies();
+    // Log screen view once per page open
+    if (!_screenLogged) {
+      _screenLogged = true;
+      final String screenKey = widget.screenKey ?? 'custom';
+      AnalyticsService.logScreen('custom_$screenKey');
+    }
   }
 
   @override

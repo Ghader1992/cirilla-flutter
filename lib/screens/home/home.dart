@@ -1,3 +1,4 @@
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/service/messaging.dart';
 import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
@@ -69,6 +70,13 @@ class _HomeScreenState extends State<HomeScreen> with Utility, MessagingMixin, N
     super.initState();
     // Subscribe push notification
     subscribe(widget.store!.requestHelper, _navigate);
+
+    // Log the initial tab once
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (widget.store?.tabs.isNotEmpty == true) {
+        AnalyticsService.logScreen(_screenNameFromTabKey(widget.store!.tabs.last?.toString()));
+      }
+    });
   }
 
   @override
@@ -87,6 +95,26 @@ class _HomeScreenState extends State<HomeScreen> with Utility, MessagingMixin, N
 
   void _navigate(data) {
     navigate(context, data);
+  }
+
+  /// Returns a human-readable screen name from a tab key.
+  String _screenNameFromTabKey(String? key) {
+    const Map<String, String> tabNames = {
+      'screens_home': 'Home',
+      'screens_category': 'Categories',
+      'screens_wishlist': 'Wishlist',
+      'screens_cart': 'Cart',
+      'screens_profile': 'Profile',
+      'screens_postCategory': 'Post Categories',
+      'screens_postWishlist': 'Post Wishlist',
+      'screens_postList': 'Posts',
+      'screens_vendorList': 'Vendors',
+    };
+    if (key == null) return 'Unknown';
+    if (key.startsWith('extraScreens_')) {
+      return 'Custom: ${key.replaceFirst('extraScreens_', '')}';
+    }
+    return tabNames[key] ?? key;
   }
 
   @override
@@ -191,6 +219,7 @@ class _HomeScreenState extends State<HomeScreen> with Utility, MessagingMixin, N
     }
     List tabActive = widget.store!.tabs;
 
+
     return AwesomeDrawerBar(
       isRTL: isRTL,
       type: types['$layout'],
@@ -211,7 +240,11 @@ class _HomeScreenState extends State<HomeScreen> with Utility, MessagingMixin, N
           extendBody: extendBody,
           bottomNavigationBar: Tabs(
             selected: tabActive.last,
-            onItemTapped: widget.store!.setTab,
+            onItemTapped: (String? key) {
+              widget.store!.setTab(key);
+              // Log screen view when tab changes
+              AnalyticsService.logScreen(_screenNameFromTabKey(key));
+            },
             data: tabsData,
           ),
           body: newWidgetOptions[tabActive.last],

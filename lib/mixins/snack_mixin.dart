@@ -9,6 +9,8 @@ void showError(BuildContext context, dynamic e, {OnTap? onLinkTap, SnackBarActio
     message = e;
   } else if (e is DioException) {
     message = e.response != null && e.response?.data != null ? e.response?.data['message'] : e.message;
+  } else if (e is Exception) {
+    message = e.toString();
   }
 
   final snackBar = SnackBar(

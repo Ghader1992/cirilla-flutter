@@ -725,6 +725,33 @@ class RequestHelper {
     }
   }
 
+  // ---------------------------------------------- Syriatel OTP -------------------------------------------------------
+  /// Syriatel send OTP
+  Future<Map<String, dynamic>> syriatelSendOtp({required String phone}) async {
+    try {
+      final res = await _dioClient.post(
+        Endpoints.syriatelSendOtp,
+        data: {'phone': phone},
+      );
+      return res;
+    } on DioException {
+      rethrow;
+    }
+  }
+
+  /// Syriatel verify OTP
+  Future<Map<String, dynamic>> syriatelVerifyOtp({required String phone, required String otp}) async {
+    try {
+      final res = await _dioClient.post(
+        Endpoints.syriatelVerifyOtp,
+        data: {'phone': phone, 'otp': otp},
+      );
+      return res;
+    } on DioException {
+      rethrow;
+    }
+  }
+
   /// Delete account
   Future<Map<String, dynamic>> deleteAccount({
     Map<String, dynamic>? dataParameters,

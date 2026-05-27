@@ -1,5 +1,6 @@
 import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -35,11 +36,20 @@ class CartLayoutShippingState extends State<CartLayoutShipping> with SnackMixin 
     BuildContext context,
     String? rateId,
     bool selected,
+    String shippingName,
   ) async {
     if (!selected) {
       try {
         loadingShipping = false;
         await widget.cartStore!.selectShipping(packageId: widget.shippingRate.packageId, rateId: rateId);
+        // Log shipping info selection
+        final CartData? cartData = widget.cartStore?.cartData;
+        if (cartData != null) {
+          AnalyticsService.logAddShippingInfo(
+            cartData: cartData,
+            shippingTier: shippingName,
+          );
+        }
       } catch (e) {
         loadingShipping = false;
         if (context.mounted) showError(context, e);
@@ -81,7 +91,7 @@ class CartLayoutShippingState extends State<CartLayoutShipping> with SnackMixin 
             color: color,
             colorSelect: colorSelect,
             isSelect: isloadingShipping,
-            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected),
+            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected, name),
             child: text,
           );
           break;
@@ -90,7 +100,7 @@ class CartLayoutShippingState extends State<CartLayoutShipping> with SnackMixin 
             color: color,
             colorSelect: colorSelect,
             isSelect: isloadingShipping,
-            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected),
+            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected, name),
             child: text,
           );
           break;
@@ -99,7 +109,7 @@ class CartLayoutShippingState extends State<CartLayoutShipping> with SnackMixin 
             color: color,
             colorSelect: colorSelect,
             isSelect: isloadingShipping,
-            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected),
+            onTap: () => _selectShipping(context, dataShipInfo.rateId, selected, name),
             child: text,
           );
       }

@@ -49,32 +49,33 @@ class LayoutList extends StatelessWidget with LoadingMixin {
 
     return Padding(
       padding: padding,
-      child: Column(
-        children: List.generate(
-          count,
-          (int index) {
-            if (index == products!.length) {
-              return SizedBox(
-                height: 34,
-                child: ElevatedButton(
-                  onPressed: onLoadMore as void Function()?,
-                  child: loading ? entryLoading(context, size: 14, color: Colors.white) : Text(translate('load_more')),
-                ),
-              );
-            }
-            return Column(
-              children: [
-                buildItem!(
-                  context,
-                  product: products![index],
-                  width: newWidth,
-                  height: newHeight,
-                ),
-                if (index < count - 1) CirillaDivider(color: dividerColor, height: pad, thickness: dividerHeight),
-              ],
+      // --- تحسين: استخدام ListView.builder بدلاً من Column + List.generate ---
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: count,
+        itemBuilder: (context, index) {
+          if (index == products!.length) {
+            return SizedBox(
+              height: 34,
+              child: ElevatedButton(
+                onPressed: onLoadMore as void Function()?,
+                child: loading ? entryLoading(context, size: 14, color: Colors.white) : Text(translate('load_more')),
+              ),
             );
-          },
-        ),
+          }
+          return Column(
+            children: [
+              buildItem!(
+                context,
+                product: products![index],
+                width: newWidth,
+                height: newHeight,
+              ),
+              if (index < count - 1) CirillaDivider(color: dividerColor, height: pad, thickness: dividerHeight),
+            ],
+          );
+        },
       ),
     );
   }

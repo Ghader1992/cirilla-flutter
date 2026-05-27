@@ -225,6 +225,13 @@ class Product {
   }
 
   static List<String> variableKeys = ['id', 'name', 'slug', 'type', 'status', 'sku', 'stock_status', 'categories'];
+
+  String get category {
+    if (categories != null && categories!.isNotEmpty) {
+      return categories!.map((e) => e?.name ?? '').where((e) => e.isNotEmpty).join(', ');
+    }
+    return '';
+  }
 }
 
 Product _productFromVariation(dynamic json) {

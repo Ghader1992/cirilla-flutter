@@ -2,6 +2,7 @@ import 'package:cirilla/constants/product_list.dart';
 import 'package:cirilla/constants/strings.dart';
 import 'package:cirilla/mixins/mixins.dart';
 import 'package:cirilla/models/models.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/store/product/filter_store.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:cirilla/utils/convert_data.dart';
@@ -145,6 +146,17 @@ class _ProductListScreenState extends State<ProductListScreen>
         attributes: _productsStore?.filter?.attributes,
         rangePricesSelected: _productsStore?.filter?.rangePricesSelected,
         productPricesSelected: _productsStore?.filter?.productPricesSelected,
+      );
+
+      // Log product list view after loading
+      final String listName = _categories?.isNotEmpty == true
+          ? (_categories!.first.name ?? 'Product List')
+          : (_brand?.name ?? 'Product List');
+      final String currency = widget.store?.currency ?? 'USD';
+      AnalyticsService.logViewItemList(
+        products: _productsStore!.products,
+        currency: currency,
+        listName: listName,
       );
     }
   }

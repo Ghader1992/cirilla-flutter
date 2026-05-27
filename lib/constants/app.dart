@@ -14,4 +14,4 @@ const String defaultLanguage = 'ar';
 
 const List<String> languageSupport = ['ar'];
 
-const String googleClientId = '295269595518-e7s01ueadskq7sbg2k4g4dfnefpmd7vt.apps.googleusercontent.com';
+const String googleClientId = '797479514250-jcp4cm8qcntojfal8fsuqo4bi3tckvd9.apps.googleusercontent.com';

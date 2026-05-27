@@ -28,8 +28,8 @@ class CodGateway implements PaymentBase {
 
   }) async {
     try {
-      await checkout([]);
-      callback("");
+      final dynamic response = await checkout([]);
+      callback(response); // Pass full response containing order_id
     } catch (e) {
       callback(e);
     }

@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 2.7.2+10
+version: 2.7.2+12
 
 environment:
   sdk: '>=2.19.0 <4.0.0'
@@ -203,6 +203,17 @@ dependencies:
 
   # Flutter Appsflyer Plugin
   # appsflyer_sdk: ^6.16.2
+
+  # Meta Pixel / Facebook App Events
+  facebook_app_events: ^0.19.2
+  
+  # App Tracking Transparency for iOS 14.5+
+  app_tracking_transparency: ^2.0.6
+
+  # ========== APP UPGRADE (AppCheap Built-in) ==========
+  upgrade_prompt:
+    path: ./packages/upgrade_prompt
+  # =====================================================
 
 dev_dependencies:
   flutter_test:

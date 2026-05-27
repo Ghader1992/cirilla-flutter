@@ -79,6 +79,10 @@ class CirillaCacheImage extends StatelessWidget {
     }
     return CachedNetworkImage(
       imageUrl: url != null && url!.isNotEmpty ? url! : Assets.noImageUrl,
+      memCacheWidth: width?.toInt() ?? 600, // --- تحسين: تقليل حجم الذاكرة ---
+      memCacheHeight: height?.toInt() ?? 600,
+      maxWidthDiskCache: 800, // --- تحسين: تقليل حجم التخزين المؤقت ---
+      maxHeightDiskCache: 800,
       imageBuilder: (context, imageProvider) => Container(
         width: width,
         height: height,
@@ -97,12 +101,16 @@ class CirillaCacheImage extends StatelessWidget {
           child: CupertinoActivityIndicator(),
         ),
       ),
-      errorWidget: (context, url, error) => Image.network(
-        Assets.noImageUrl,
-        width: width,
-        height: height,
-        fit: fit,
-      ),
+      errorWidget: (context, url, error) {
+        // --- تحسين: تسجيل أخطاء الصور للتشخيص ---
+        debugPrint('[CirillaCacheImage] Error loading image: $url - Error: $error');
+        return Image.network(
+          Assets.noImageUrl,
+          width: width,
+          height: height,
+          fit: fit,
+        );
+      },
     );
   }
 }

@@ -1,0 +1,24 @@
+# Ignore IDE specific files
+/.idea/
+
+# Ignore Composer's vendor directory and composer.lock
+/composer.lock
+/composer.json
+
+# Ignore Node.js specific files
+/node_modules/
+/package-lock.json
+
+# Ignore Git files
+/.git/
+/.gitignore
+/.gitattributes
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore project specific files
+notes.md
+
+/vendor/bin/

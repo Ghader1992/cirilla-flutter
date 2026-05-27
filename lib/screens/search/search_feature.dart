@@ -92,6 +92,7 @@ class SearchFeatureState extends State<SearchFeature> {
         return search(endPoint, query);
       },
       onTapResult: (String? title, int? id) {
+
         if (enablePost) {
           // Result Post search
           searchPostStore!.addSearch(title!);

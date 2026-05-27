@@ -1,5 +1,6 @@
 import 'package:cirilla/constants/styles.dart';
 import 'package:cirilla/mixins/mixins.dart';
+import 'package:cirilla/models/order/order.dart';
 import 'package:cirilla/service/service.dart';
 import 'package:cirilla/store/auth/auth_store.dart';
 import 'package:cirilla/store/cart/cart_store.dart';
@@ -38,8 +39,28 @@ class _OrderReceivedState extends State<OrderReceived> with NavigationMixin, App
     super.didChangeDependencies();
     _authStore = Provider.of<AuthStore>(context);
     _cartStore = _authStore.cartStore;
+    // Log the Order Received screen view
+    AnalyticsService.logScreen('Order Received');
+    
+    // --- Analytics: Log purchase event (Robust API method) ---
+    _logPurchaseRobustly();
+    
     await _updateOrderUtm();
-    await _cartStore.getCart();
+    await _cartStore.getCart(); // This pulls fresh data, essentially clearing the placed order from the local cart
+  }
+
+  Future<void> _logPurchaseRobustly() async {
+    if (widget.orderId == null) return;
+    try {
+      RequestHelper requestHelper = Provider.of<RequestHelper>(context, listen: false);
+      final orders = await requestHelper.getOrders(queryParameters: {'include': '${widget.orderId}'});
+      if (orders != null && orders.isNotEmpty) {
+        OrderData order = orders.first;
+        await AnalyticsService.logPurchaseOrder(order);
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] Purchase robust log failed: $e');
+    }
   }
 
   Future<void> _updateOrderUtm() async {

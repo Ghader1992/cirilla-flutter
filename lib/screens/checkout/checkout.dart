@@ -5,7 +5,9 @@ import 'package:cirilla/mixins/transition_mixin.dart';
 import 'package:cirilla/mixins/utility_mixin.dart';
 import 'package:cirilla/models/cart/gateway.dart';
 import 'package:cirilla/models/models.dart';
+import 'package:collection/collection.dart';
 import 'package:cirilla/screens/checkout/view/checkout_view_shipping_methods.dart';
+import 'package:cirilla/service/analytics_service.dart';
 import 'package:cirilla/service/app_service.dart';
 import 'package:cirilla/store/store.dart';
 import 'package:cirilla/themes/default/checkout/payment_method.dart';
@@ -172,9 +174,15 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
     } else if (data is PaymentException) {
       showError(context, data.error);
     } else if (data is Map<String, dynamic>) {
-      if (data['redirect'] == 'order') {
+      // ✅ التحقق من نجاح الطلب عبر وجود redirect = 'order' أو order_id
+      // يحدث هذا مع بوابات الدفع مثل COD التي تعيد order_id مباشرة
+      if (data['redirect'] == 'order' || data['order_id'] != null) {
         int? orderId = ConvertData.stringToIntCanBeNull(data['order_id']);
         String? paymentMethod = get(data, ['payment_method'], null);
+        
+        // --- Analytics: Log purchase immediately on success ---
+        _logPurchaseEvent(orderId);
+        
         onGoPage(2, 2, data['order_received_url'], orderId, paymentMethod);
       }
     } else {
@@ -242,6 +250,61 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
     );
   }
 
+  void _logCheckoutProgress() {
+    try {
+      final CartData? cartData = _cartStore.cartData;
+      if (cartData == null) return;
+      
+      // Log begin_checkout
+      AnalyticsService.logBeginCheckout(cartData: cartData);
+      
+      // Log add_shipping_info if shipping is needed
+      if (cartData.needsShipping == true) {
+        final shippingRate = cartData.shippingRate?.firstOrNull;
+        final shippingMethod = shippingRate?.shipItem?.firstWhereOrNull((item) => item.selected == true)?.name;
+        if (shippingMethod != null) {
+          AnalyticsService.logAddShippingInfo(
+            cartData: cartData,
+            shippingTier: shippingMethod,
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] Checkout progress log failed: $e');
+    }
+  }
+
+  void _logPaymentInfoSelection(int index) {
+    try {
+      final CartData? cartData = _cartStore.cartData;
+      final List<Gateway> gateways = _getGateways();
+      if (cartData != null && index < gateways.length) {
+        AnalyticsService.logAddPaymentInfo(
+          cartData: cartData,
+          paymentType: gateways[index].title ?? gateways[index].id,
+        );
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] Payment info log failed: $e');
+    }
+  }
+
+  void _logPurchaseEvent(int? orderId) async {
+    if (orderId == null) return;
+    try {
+      debugPrint('[AnalyticsService] Logging purchase for order: $orderId');
+      final order = await _settingStore.requestHelper.getOrders(
+        queryParameters: {'include': '$orderId'},
+      );
+      if (order != null && order.isNotEmpty) {
+        await AnalyticsService.logPurchaseOrder(order.first);
+        debugPrint('[AnalyticsService] Purchase logged successfully for order: $orderId');
+      }
+    } catch (e) {
+      debugPrint('[AnalyticsService] Failed to log purchase: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ThemeData theme = Theme.of(context);
@@ -265,9 +328,13 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
                   controller: _tabController,
                   physics: const NeverScrollableScrollPhysics(),
                   children: <Widget>[
-                    Form(
-                      key: _formAddressKey,
-                      child: StepAddress(
+                    // --- Lazy Loading: فقط التبويب النشط يُبنى ---
+                    _LazyLoadTab(
+                      index: 0,
+                      currentIndex: visit,
+                      child: Form(
+                        key: _formAddressKey,
+                        child: StepAddress(
                         totals: CheckoutViewCartTotals(cartStore: _cartStore),
                         shippingMethods: _cartStore.cartData?.needsShipping == true
                             ? CheckoutViewShippingMethods(cartStore: _cartStore)
@@ -362,14 +429,20 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
                               if (!isValid) {
                                 return;
                               }
+                              // --- Analytics: Log begin_checkout and add_shipping_info ---
+                              _logCheckoutProgress();
                               onGoPage(1, 0);
                             },
                           ),
                           theme: theme,
                         ),
                       ),
+                      ),
                     ),
-                    success == 1
+                    _LazyLoadTab(
+                      index: 1,
+                      currentIndex: visit,
+                      child: success == 1
                         ? StepFormPayment(onPayment: () => onGoPage(2, 2))
                         : StepPayment(
                             paymentMethod: Observer(
@@ -377,7 +450,11 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
                                 padHorizontal: layoutPadding,
                                 gateways: _getGateways(),
                                 active: _cartStore.paymentStore.active,
-                                select: _cartStore.paymentStore.select,
+                                select: (int index) {
+                                  _cartStore.paymentStore.select(index);
+                                  // --- Analytics: Log add_payment_info ---
+                                  _logPaymentInfoSelection(index);
+                                },
                               ),
                             ),
                             padding: paddingVerticalLarge,
@@ -396,12 +473,17 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
                               theme: theme,
                             ),
                           ),
-                    StepSuccess(
-                      url: orderReceivedUrl,
-                      titleButton: widget.titleButtonSuccess,
-                      onClickButton: widget.onClickButtonSuccess,
-                      orderId: orderId,
-                      paymentMethod: paymentMethod,
+                    ),
+                    _LazyLoadTab(
+                      index: 2,
+                      currentIndex: visit,
+                      child: StepSuccess(
+                        url: orderReceivedUrl,
+                        titleButton: widget.titleButtonSuccess,
+                        onClickButton: widget.onClickButtonSuccess,
+                        orderId: orderId,
+                        paymentMethod: paymentMethod,
+                      ),
                     ),
                   ],
                 ),
@@ -470,5 +552,29 @@ class _CheckoutState extends State<Checkout> with TickerProviderStateMixin, Tran
         child: isLoading ? entryLoading(context, color: Theme.of(context).colorScheme.onPrimary) : Text(title),
       ),
     );
+  }
+}
+
+/// Lazy Load Tab Widget - يبني التبويب فقط عندما يكون نشطاً
+/// يقلل من استهلاك الذاكرة ويحسن الأداء
+class _LazyLoadTab extends StatelessWidget {
+  final int index;
+  final int currentIndex;
+  final Widget child;
+
+  const _LazyLoadTab({
+    required this.index,
+    required this.currentIndex,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // فقط التبويب النشط أو الذي تم زيارته سابقاً يُبنى
+    if (index == currentIndex || index < currentIndex) {
+      return child;
+    }
+    // التبويبات المستقبلية تظهر فارغة حتى يتم زيارتها
+    return const SizedBox.shrink();
   }
 }
