@@ -33,11 +33,6 @@ target 'Runner' do
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   pod 'GoogleUtilities'
-  
-  # Facebook SDK for Meta Pixel - Latest version
-  pod 'FBSDKCoreKit', '~> 17.0'
-  pod 'FBSDKLoginKit', '~> 17.0'
-  pod 'FBSDKShareKit', '~> 17.0'
 end
 
 post_install do |installer|
