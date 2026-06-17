@@ -1,4 +1,4 @@
-const String baseUrl = 'https://eoclickandgo.sy/';
+const String baseUrl = 'https://eoclickandgo.com/';
 
 const String consumerKey = 'ck_7e30cb71ee0bf3c2d46fa99dbbac7b1254f2acd0';
 
